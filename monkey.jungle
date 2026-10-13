@@ -1,0 +1,107 @@
+project.manifest = manifest.xml
+base.sourcePath = source
+base.resourcePath = resources
+
+# Sleep Score was added in CIQ 6.0.2. Only those device profiles receive the
+# phone-settings list entry; older devices keep the base settings resource.
+enduro3.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix843mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix847mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix8pro47mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix8solar47mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix8solar51mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix943mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix947mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix9pro43mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix9pro47mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix9pro51mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix9prosolar47mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenix9prosolar51mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fenixe.resourcePath = $(base.resourcePath);resources-sleep-score
+fr57042mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fr57047mm.resourcePath = $(base.resourcePath);resources-sleep-score
+fr970.resourcePath = $(base.resourcePath);resources-sleep-score
+instinct3amoled45mm.resourcePath = $(base.resourcePath);resources-sleep-score
+instinct3amoled50mm.resourcePath = $(base.resourcePath);resources-sleep-score
+instinctcrossoveramoled.resourcePath = $(base.resourcePath);resources-sleep-score
+venu441mm.resourcePath = $(base.resourcePath);resources-sleep-score
+venu445mm.resourcePath = $(base.resourcePath);resources-sleep-score
+vivoactive6.resourcePath = $(base.resourcePath);resources-sleep-score
+
+# Modern layout profiles are selected at compile time. Each modern product
+# excludes every screen-family implementation except its SDK 9.2 deviceFamily.
+fenix6.excludeAnnotations = Round240;Round280;Round390;Round416;Round454
+fenix6pro.excludeAnnotations = Round240;Round280;Round390;Round416;Round454
+fenix7.excludeAnnotations = Round240;Round280;Round390;Round416;Round454
+fenix7pro.excludeAnnotations = Round240;Round280;Round390;Round416;Round454
+fenix7pronowifi.excludeAnnotations = Round240;Round280;Round390;Round416;Round454
+fenix8solar47mm.excludeAnnotations = Round240;Round280;Round390;Round416;Round454
+fenix9prosolar47mm.excludeAnnotations = Round240;Round280;Round390;Round416;Round454
+fr255.excludeAnnotations = Round240;Round280;Round390;Round416;Round454
+fr255m.excludeAnnotations = Round240;Round280;Round390;Round416;Round454
+fr955.excludeAnnotations = Round240;Round280;Round390;Round416;Round454
+vivoactive4.excludeAnnotations = Round240;Round280;Round390;Round416;Round454
+
+fenix7x.excludeAnnotations = Round240;Round260;Round390;Round416;Round454
+fenix7xpro.excludeAnnotations = Round240;Round260;Round390;Round416;Round454
+fenix7xpronowifi.excludeAnnotations = Round240;Round260;Round390;Round416;Round454
+fenix6xpro.excludeAnnotations = Round240;Round260;Round390;Round416;Round454
+fenix8solar51mm.excludeAnnotations = Round240;Round260;Round390;Round416;Round454
+fenix9prosolar51mm.excludeAnnotations = Round240;Round260;Round390;Round416;Round454
+enduro.excludeAnnotations = Round240;Round260;Round390;Round416;Round454
+enduro3.excludeAnnotations = Round240;Round260;Round390;Round416;Round454
+descentmk2.excludeAnnotations = Round240;Round260;Round390;Round416;Round454
+
+approachs50.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+approachs7042mm.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+descentg2.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+descentmk343mm.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+epix2pro42mm.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+fr165.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+fr165m.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+fr170.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+fr170m.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+fr57042mm.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+fr70.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+instinct3amoled45mm.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+instinctcrossoveramoled.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+marq2.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+marq2aviator.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+venu3s.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+venu441mm.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+vivoactive5.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+vivoactive6.excludeAnnotations = Round240;Round260;Round280;Round416;Round454
+
+d2airx10.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+d2mach1.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+epix2.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+epix2pro47mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+fenix843mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+fenix943mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+fenix9pro43mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+fenixe.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+fr265.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+instinct3amoled50mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+venu2.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+venu2plus.excludeAnnotations = Round240;Round260;Round280;Round390;Round454
+
+approachs7047mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+d2mach2.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+d2mach2pro.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+descentmk351mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+epix2pro51mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+fenix847mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+fenix8pro47mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+fenix947mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+fenix9pro47mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+fenix9pro51mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+fr57047mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+fr965.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+fr970.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+venu3.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+venu445mm.excludeAnnotations = Round240;Round260;Round280;Round390;Round416
+
+fenix7s.excludeAnnotations = Round260;Round280;Round390;Round416;Round454
+fenix7spro.excludeAnnotations = Round260;Round280;Round390;Round416;Round454
+
+# This second face intentionally has one layout architecture: modern source only.
