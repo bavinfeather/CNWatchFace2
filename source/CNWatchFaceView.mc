@@ -156,6 +156,7 @@ class CNWatchFaceView extends WatchUi.WatchFace {
     // dayOfYear() and lunarDate() so onUpdate never allocates it per frame.
     const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
+    private var _fieldLabelChineseFont = null;
     private var _lowPower = false;
     private var _wakeFramePending = false;
     private var _deferActivityHistoryRefresh = false;
@@ -328,6 +329,7 @@ class CNWatchFaceView extends WatchUi.WatchFace {
         _lunarFont = null;
         _lunarFontChecked = false;
         _lunarFontKey = -1;
+        _fieldLabelChineseFont = null;
     }
 
     private var _viewVisible = false;
@@ -359,6 +361,7 @@ class CNWatchFaceView extends WatchUi.WatchFace {
         _lunarFont = null;
         _lunarFontChecked = false;
         _lunarFontKey = -1;
+        _fieldLabelChineseFont = null;
     }
 
     private function clearComplicationSubscriptions() as Void {
@@ -437,6 +440,7 @@ class CNWatchFaceView extends WatchUi.WatchFace {
         _lunarFont = null;
         _lunarFontChecked = false;
         _lunarFontKey = -1;
+        _fieldLabelChineseFont = null;
         _dataMinute = -1;
         _profileCacheTick = -1;
         _activityDistanceCacheKey = -1;
@@ -752,57 +756,14 @@ class CNWatchFaceView extends WatchUi.WatchFace {
         return _timeVectorFont;
     }
 
-    // AOD must not fetch live data. Keep its optional field restricted to
-    // data already cached in the active path or available from the clock.
-    private function aodFieldValue(field as Lang.Number, date) as Lang.String {
-        if (field == FIELD_HIDDEN) { return ""; }
-        if (field == FIELD_BATTERY) { return _batteryKnown ? _cachedBatteryPercent.format("%d") + "%" : "--"; }
-        if (field == FIELD_HEART) {
-            return _cachedHeartRate == null ? "--" : _cachedHeartRate.toNumber().format("%d");
-        }
-        if (field == FIELD_DATE) { return Lang.format(text(Rez.Strings.DatePattern), [date.month, date.day]); }
-        if (field == FIELD_WEEKDAY) { return weekdayText(date.day_of_week); }
-        return "--";
-    }
-
-    private function aodFieldWidth(dc as Graphics.Dc, field as Lang.Number, value as Lang.String) as Lang.Number {
-        var valueWidth = dc.getTextWidthInPixels(value, Graphics.FONT_TINY);
-        var labelWidth = dc.getTextWidthInPixels(fieldLabel(field), Graphics.FONT_XTINY);
-        return valueWidth > labelWidth ? valueWidth : labelWidth;
-    }
-
-    private function drawAodField(dc as Graphics.Dc, field as Lang.Number, value as Lang.String,
-                                  cx as Lang.Number, cy as Lang.Number, color as Lang.Number) as Void {
-        if (value == "") { return; }
-        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy - scalePx(5), Graphics.FONT_TINY, value,
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(cx, cy + scalePx(7), Graphics.FONT_XTINY, fieldLabel(field),
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-    }
-
-    // Portable AOD; retain MAX2's simple/compact setting and two cached fields.
     private function drawAmoledAod(dc as Graphics.Dc, clock as System.ClockTime, date, displayHour as Lang.Number, simple as Lang.Boolean) as Void {
         if (_aodRenderer == null) { _aodRenderer = new SharedAod(); }
-        var fields = [];
-        if (!simple) {
-            // Refresh only the visible AOD battery; keep the last valid value.
-            if (numberProperty("AodLeftField", FIELD_HEART) == FIELD_BATTERY ||
-                numberProperty("AodRightField", FIELD_BATTERY) == FIELD_BATTERY) {
-                try {
-                    var aodBattery = System.getSystemStats().battery;
-                    if (aodBattery != null) { _cachedBatteryPercent = aodBattery.toNumber(); _batteryKnown = true; }
-                } catch (e) {}
-            }
-            fields = [
-                aodFieldValue(numberProperty("AodLeftField", FIELD_HEART), date),
-                aodFieldValue(numberProperty("AodRightField", FIELD_BATTERY), date)
-            ];
-        }
+        var dateText = Lang.format(text(Rez.Strings.DatePattern), [date.month, date.day]);
+        var fields = SharedAodFields.collect(simple, [7, 0, 5], dateText, date.day_of_week,
+            _batteryKnown ? _cachedBatteryPercent : null);
         _aodRenderer.draw(dc, clock.hour * 60 + clock.min,
             displayHour.format("%02d") + ":" + clock.min.format("%02d"),
-            numberProperty("ShowCalendarRow", 1) == 1 ?
-                Lang.format(text(Rez.Strings.DatePattern), [date.month, date.day]) : "", fields);
+            numberProperty("ShowCalendarRow", 1) == 1 ? dateText : "", fields);
     }
 
     // AOD uses the once-per-minute onUpdate path. No full-screen drawing
@@ -2199,6 +2160,77 @@ class CNWatchFaceView extends WatchUi.WatchFace {
         return "";
     }
 
+    private function fieldChineseLabel(field as Lang.Number) as Lang.String {
+        if (field == FIELD_STEPS) { return "步数"; }
+        if (field == FIELD_FLOORS) { return "已爬楼层"; }
+        if (field == FIELD_CALORIES) { return "活动热量"; }
+        if (field == FIELD_DISTANCE) { return "距离"; }
+        if (field == FIELD_BATTERY) { return "电池电量"; }
+        if (field == FIELD_STRESS) { return "压力"; }
+        if (field == FIELD_HEART) { return "心率"; }
+        if (field == FIELD_BODY_BATTERY) { return "身体电量"; }
+        if (field == FIELD_SLEEP_SCORE) { return "睡眠评分"; }
+        if (field == FIELD_SECONDS) { return "秒"; }
+        if (field == FIELD_DATE) { return "日期"; }
+        if (field == FIELD_WEEKDAY) { return "星期"; }
+        if (field == FIELD_TEMPERATURE) { return "温度"; }
+        if (field == FIELD_RECOVERY) { return "恢复时间"; }
+        if (field == FIELD_ACTIVE_MINUTES) { return "强度活动分钟数"; }
+        if (field == FIELD_STEP_GOAL) { return "步数目标"; }
+        if (field == FIELD_SUNRISE) { return "日出时间"; }
+        if (field == FIELD_SUNSET) { return "日落时间"; }
+        if (field == FIELD_RESTING_HR) { return "静息心率"; }
+        if (field == FIELD_ELEVATION) { return "海拔"; }
+        if (field == FIELD_PRESSURE) { return "气压"; }
+        if (field == FIELD_SPO2) { return "脉搏血氧"; }
+        if (field == FIELD_LUNAR) { return "农历"; }
+        if (field == FIELD_TOTAL_CALORIES) { return "总热量"; }
+        if (field == FIELD_RESTING_CALORIES) { return "静息热量"; }
+        if (field == FIELD_FLOORS_DESCENDED) { return "下楼层数"; }
+        if (field == FIELD_ACTIVE_MINUTES_WEEK) { return "周强度活动时间"; }
+        if (field == FIELD_ACTIVE_MINUTES_WEEK_GOAL) { return "每周强度分钟数目标"; }
+        if (field == FIELD_BATTERY_DAYS) { return "电池续航天数"; }
+        if (field == FIELD_HUMIDITY) { return "湿度"; }
+        if (field == FIELD_VO2MAX_RUNNING) { return "跑步最大摄氧量"; }
+        if (field == FIELD_SOLAR_INTENSITY) { return "太阳能强度"; }
+        if (field == FIELD_MONTHLY_RUNNING_DISTANCE) { return "月跑量"; }
+        if (field == FIELD_WEEK_NUMBER) { return "周数"; }
+        if (field == FIELD_NOTIFICATION_COUNT) { return "通知数量"; }
+        if (field == FIELD_HIGH_TEMPERATURE) { return "最高气温"; }
+        if (field == FIELD_LOW_TEMPERATURE) { return "最低气温"; }
+        if (field == FIELD_PRECIPITATION_CHANCE) { return "降水概率"; }
+        if (field == FIELD_DAY_NIGHT) { return "昼夜"; }
+        if (field == FIELD_DAYLIGHT_REMAINING) { return "剩余日照"; }
+        if (field == FIELD_HEART_RATE_ZONE) { return "心率区间"; }
+        if (field == FIELD_MOON_PHASE) { return "月相"; }
+        if (field == FIELD_SOLAR_TERM) { return "节气"; }
+        if (field == FIELD_AVG_RESTING_HR) { return "平均静息心率"; }
+        if (field == FIELD_ALARM_COUNT) { return "闹钟数量"; }
+        if (field == FIELD_RESPIRATION_RATE) { return "呼吸频率"; }
+        if (field == FIELD_WEATHER_CONDITION) { return "天气"; }
+        if (field == FIELD_NEXT_SUN_EVENT) { return "日出/日落时间"; }
+        if (field == FIELD_MONTHLY_CYCLING_DISTANCE) { return "本月骑行距离"; }
+        if (field == FIELD_LOCATION_NAME) { return "GPS位置"; }
+        if (field == FIELD_DAILY_RUNNING_DISTANCE) { return "当天跑步距离"; }
+        if (field == FIELD_WEEKLY_RUNNING_DISTANCE) { return "周跑量"; }
+        if (field == FIELD_YEARLY_RUNNING_DISTANCE) { return "本年跑步距离"; }
+        if (field == FIELD_DAILY_CYCLING_DISTANCE) { return "当天骑行距离"; }
+        if (field == FIELD_WEEKLY_CYCLING_DISTANCE) { return "本周骑行距离"; }
+        if (field == FIELD_YEARLY_CYCLING_DISTANCE) { return "本年骑行距离"; }
+        if (field == FIELD_METERS_CLIMBED) { return "爬升高度"; }
+        if (field == FIELD_VO2MAX_CYCLING) { return "骑行最大摄氧量"; }
+        if (field == FIELD_SEA_LEVEL_PRESSURE) { return "海平面气压"; }
+        if (field == FIELD_TOTAL_DISTANCE_7_DAYS) { return "7日总距离"; }
+        if (field == FIELD_SENSOR_TEMPERATURE) { return "传感器温度"; }
+        if (field == FIELD_HOURS_TO_NEXT_SUN) { return "距下一个日出/日落"; }
+        if (field == FIELD_ALT_TIMEZONE_1) { return "备用时区1"; }
+        if (field == FIELD_ALT_TIMEZONE_2) { return "备用时区2"; }
+        if (field == FIELD_UV_INDEX) { return "紫外线指数"; }
+        if (field == FIELD_NEXT_CALENDAR_EVENT) { return "下一日历事件"; }
+        if (field == FIELD_FEELS_LIKE) { return "体感温度"; }
+        return "";
+    }
+
     private function fieldShortLabel(field as Lang.Number) as Lang.String {
         if (field == FIELD_STEPS) { return "STP"; }
         if (field == FIELD_FLOORS) { return "FLR"; }
@@ -2208,12 +2240,12 @@ class CNWatchFaceView extends WatchUi.WatchFace {
         if (field == FIELD_STRESS) { return "STR"; }
         if (field == FIELD_HEART) { return "HR"; }
         if (field == FIELD_BODY_BATTERY) { return "BB"; }
-        if (field == FIELD_SLEEP_SCORE) { return "SLEEP"; }
+        if (field == FIELD_SLEEP_SCORE) { return "SLP"; }
         if (field == FIELD_SECONDS) { return "SEC"; }
         if (field == FIELD_DATE) { return "DATE"; }
         if (field == FIELD_WEEKDAY) { return "DAY"; }
         if (field == FIELD_TEMPERATURE) { return "TEMP"; }
-        if (field == FIELD_RECOVERY) { return "RECOV"; }
+        if (field == FIELD_RECOVERY) { return "RCV"; }
         if (field == FIELD_ACTIVE_MINUTES) { return "MIN"; }
         if (field == FIELD_STEP_GOAL) { return "STP%"; }
         if (field == FIELD_SUNRISE) { return "RISE"; }
@@ -2221,52 +2253,52 @@ class CNWatchFaceView extends WatchUi.WatchFace {
         if (field == FIELD_RESTING_HR) { return "RHR"; }
         if (field == FIELD_ELEVATION) { return "ELEV"; }
         if (field == FIELD_PRESSURE) { return "PRES"; }
-        if (field == FIELD_SPO2) { return "PULSE OX"; }
-        if (field == FIELD_LUNAR) { return "LUNAR"; }
+        if (field == FIELD_SPO2) { return "SPO2"; }
+        if (field == FIELD_LUNAR) { return "LUN"; }
         if (field == FIELD_TOTAL_CALORIES) { return "TCAL"; }
         if (field == FIELD_RESTING_CALORIES) { return "RCAL"; }
-        if (field == FIELD_FLOORS_DESCENDED) { return "FLR DN"; }
+        if (field == FIELD_FLOORS_DESCENDED) { return "FLR-"; }
         if (field == FIELD_ACTIVE_MINUTES_WEEK) { return "WMIN"; }
-        if (field == FIELD_ACTIVE_MINUTES_WEEK_GOAL) { return "WGOAL"; }
-        if (field == FIELD_BATTERY_DAYS) { return "BAT D"; }
+        if (field == FIELD_ACTIVE_MINUTES_WEEK_GOAL) { return "WGL"; }
+        if (field == FIELD_BATTERY_DAYS) { return "BATD"; }
         if (field == FIELD_HUMIDITY) { return "HUM"; }
         if (field == FIELD_VO2MAX_RUNNING) { return "VO2"; }
-        if (field == FIELD_SOLAR_INTENSITY) { return "SOLAR"; }
-        if (field == FIELD_MONTHLY_RUNNING_DISTANCE) { return "RUN MO"; }
+        if (field == FIELD_SOLAR_INTENSITY) { return "SOL"; }
+        if (field == FIELD_MONTHLY_RUNNING_DISTANCE) { return "RUNM"; }
         if (field == FIELD_WEEK_NUMBER) { return "WK #"; }
-        if (field == FIELD_NOTIFICATION_COUNT) { return "NOTIF"; }
-        if (field == FIELD_HIGH_TEMPERATURE) { return "HI TEMP"; }
-        if (field == FIELD_LOW_TEMPERATURE) { return "LO TEMP"; }
-        if (field == FIELD_PRECIPITATION_CHANCE) { return "PRECIP"; }
+        if (field == FIELD_NOTIFICATION_COUNT) { return "NTF"; }
+        if (field == FIELD_HIGH_TEMPERATURE) { return "HI T"; }
+        if (field == FIELD_LOW_TEMPERATURE) { return "LO T"; }
+        if (field == FIELD_PRECIPITATION_CHANCE) { return "POP"; }
         if (field == FIELD_DAY_NIGHT) { return "D/N"; }
         if (field == FIELD_DAYLIGHT_REMAINING) { return "DAYL"; }
-        if (field == FIELD_HEART_RATE_ZONE) { return "HR ZONE"; }
+        if (field == FIELD_HEART_RATE_ZONE) { return "HR Z"; }
         if (field == FIELD_MOON_PHASE) { return "MOON"; }
         if (field == FIELD_SOLAR_TERM) { return "TERM"; }
-        if (field == FIELD_AVG_RESTING_HR) { return "AVG RHR"; }
-        if (field == FIELD_ALARM_COUNT) { return "ALARM"; }
+        if (field == FIELD_AVG_RESTING_HR) { return "ARHR"; }
+        if (field == FIELD_ALARM_COUNT) { return "ALRM"; }
         if (field == FIELD_RESPIRATION_RATE) { return "RESP"; }
         if (field == FIELD_WEATHER_CONDITION) { return "WX"; }
-        if (field == FIELD_NEXT_SUN_EVENT) { return "SUN NXT"; }
-        if (field == FIELD_MONTHLY_CYCLING_DISTANCE) { return "CYC MO"; }
+        if (field == FIELD_NEXT_SUN_EVENT) { return "SUN"; }
+        if (field == FIELD_MONTHLY_CYCLING_DISTANCE) { return "CYCM"; }
         if (field == FIELD_LOCATION_NAME) { return "GPS"; }
-        if (field == FIELD_DAILY_RUNNING_DISTANCE) { return "RUN D"; }
-        if (field == FIELD_WEEKLY_RUNNING_DISTANCE) { return "RUN W"; }
-        if (field == FIELD_YEARLY_RUNNING_DISTANCE) { return "RUN Y"; }
-        if (field == FIELD_DAILY_CYCLING_DISTANCE) { return "CYC D"; }
-        if (field == FIELD_WEEKLY_CYCLING_DISTANCE) { return "CYC W"; }
-        if (field == FIELD_YEARLY_CYCLING_DISTANCE) { return "CYC Y"; }
-        if (field == FIELD_METERS_CLIMBED) { return "CLIMB"; }
-        if (field == FIELD_VO2MAX_CYCLING) { return "CYC VO2"; }
+        if (field == FIELD_DAILY_RUNNING_DISTANCE) { return "RUND"; }
+        if (field == FIELD_WEEKLY_RUNNING_DISTANCE) { return "RUNW"; }
+        if (field == FIELD_YEARLY_RUNNING_DISTANCE) { return "RUNY"; }
+        if (field == FIELD_DAILY_CYCLING_DISTANCE) { return "CYCD"; }
+        if (field == FIELD_WEEKLY_CYCLING_DISTANCE) { return "CYCW"; }
+        if (field == FIELD_YEARLY_CYCLING_DISTANCE) { return "CYCY"; }
+        if (field == FIELD_METERS_CLIMBED) { return "CLMB"; }
+        if (field == FIELD_VO2MAX_CYCLING) { return "CVO2"; }
         if (field == FIELD_SEA_LEVEL_PRESSURE) { return "SLP"; }
-        if (field == FIELD_TOTAL_DISTANCE_7_DAYS) { return "DST 7D"; }
-        if (field == FIELD_SENSOR_TEMPERATURE) { return "S TEMP"; }
-        if (field == FIELD_HOURS_TO_NEXT_SUN) { return "SUN HRS"; }
-        if (field == FIELD_ALT_TIMEZONE_1) { return "ALT TZ 1"; }
-        if (field == FIELD_ALT_TIMEZONE_2) { return "ALT TZ 2"; }
+        if (field == FIELD_TOTAL_DISTANCE_7_DAYS) { return "DST7"; }
+        if (field == FIELD_SENSOR_TEMPERATURE) { return "STMP"; }
+        if (field == FIELD_HOURS_TO_NEXT_SUN) { return "SUNH"; }
+        if (field == FIELD_ALT_TIMEZONE_1) { return "TZ1"; }
+        if (field == FIELD_ALT_TIMEZONE_2) { return "TZ2"; }
         if (field == FIELD_UV_INDEX) { return "UV"; }
-        if (field == FIELD_NEXT_CALENDAR_EVENT) { return "NEXT CAL"; }
-        if (field == FIELD_FEELS_LIKE) { return "FEELS"; }
+        if (field == FIELD_NEXT_CALENDAR_EVENT) { return "NCAL"; }
+        if (field == FIELD_FEELS_LIKE) { return "FEEL"; }
         return "";
     }
 
@@ -2862,6 +2894,112 @@ class CNWatchFaceView extends WatchUi.WatchFace {
         return value.substring(0, 1);
     }
 
+    private function fieldLabelChineseFont(dc) {
+        if (_fieldLabelChineseFont == null) {
+            if (Graphics has :getVectorFont) {
+                try {
+                    var size = (_width / (isAmoledLayout() ? 19.0 : 26.0)).toNumber();
+                    var narrowWidth = x(0.16) - scalePx(4);
+                    // Reserve the longest required narrow-row word group on every device.
+                    while (size >= 8) {
+                        var candidate = Graphics.getVectorFont({:face => "NotoSansSCMedium", :size => size});
+                        if (candidate == null) { break; }
+                        if (dc.getTextWidthInPixels("每周强度", candidate) <= narrowWidth) {
+                            _fieldLabelChineseFont = candidate;
+                            break;
+                        }
+                        size -= 1;
+                    }
+                } catch (e) {
+                    _fieldLabelChineseFont = null;
+                }
+            }
+            if (_fieldLabelChineseFont == null) {
+                _fieldLabelChineseFont = WatchUi.loadResource(Rez.Fonts.FieldLabelChinese);
+            }
+        }
+        return _fieldLabelChineseFont;
+    }
+
+    // Only these complete words are valid Chinese title break points.
+    private function fieldChineseWords(field as Lang.Number) as Lang.Array {
+        if (field == FIELD_FLOORS) { return ["已爬", "楼层"]; }
+        if (field == FIELD_CALORIES) { return ["活动", "热量"]; }
+        if (field == FIELD_BATTERY) { return ["电池", "电量"]; }
+        if (field == FIELD_BODY_BATTERY) { return ["身体", "电量"]; }
+        if (field == FIELD_SLEEP_SCORE) { return ["睡眠", "评分"]; }
+        if (field == FIELD_RECOVERY) { return ["恢复", "时间"]; }
+        if (field == FIELD_ACTIVE_MINUTES) { return ["强度", "活动", "分钟数"]; }
+        if (field == FIELD_STEP_GOAL) { return ["步数", "目标"]; }
+        if (field == FIELD_SUNRISE) { return ["日出", "时间"]; }
+        if (field == FIELD_SUNSET) { return ["日落", "时间"]; }
+        if (field == FIELD_RESTING_HR) { return ["静息", "心率"]; }
+        if (field == FIELD_SPO2) { return ["脉搏", "血氧"]; }
+        if (field == FIELD_RESTING_CALORIES) { return ["静息", "热量"]; }
+        if (field == FIELD_FLOORS_DESCENDED) { return ["下楼", "层数"]; }
+        if (field == FIELD_ACTIVE_MINUTES_WEEK) { return ["周", "强度", "活动", "时间"]; }
+        if (field == FIELD_ACTIVE_MINUTES_WEEK_GOAL) { return ["每周", "强度", "分钟数", "目标"]; }
+        if (field == FIELD_BATTERY_DAYS) { return ["电池", "续航", "天数"]; }
+        if (field == FIELD_VO2MAX_RUNNING) { return ["跑步", "最大", "摄氧量"]; }
+        if (field == FIELD_SOLAR_INTENSITY) { return ["太阳能", "强度"]; }
+        if (field == FIELD_NOTIFICATION_COUNT) { return ["通知", "数量"]; }
+        if (field == FIELD_HIGH_TEMPERATURE) { return ["最高", "气温"]; }
+        if (field == FIELD_LOW_TEMPERATURE) { return ["最低", "气温"]; }
+        if (field == FIELD_PRECIPITATION_CHANCE) { return ["降水", "概率"]; }
+        if (field == FIELD_DAYLIGHT_REMAINING) { return ["剩余", "日照"]; }
+        if (field == FIELD_HEART_RATE_ZONE) { return ["心率", "区间"]; }
+        if (field == FIELD_AVG_RESTING_HR) { return ["平均", "静息", "心率"]; }
+        if (field == FIELD_ALARM_COUNT) { return ["闹钟", "数量"]; }
+        if (field == FIELD_RESPIRATION_RATE) { return ["呼吸", "频率"]; }
+        if (field == FIELD_NEXT_SUN_EVENT) { return ["日出/", "日落", "时间"]; }
+        if (field == FIELD_MONTHLY_CYCLING_DISTANCE) { return ["本月", "骑行", "距离"]; }
+        if (field == FIELD_LOCATION_NAME) { return ["GPS", "位置"]; }
+        if (field == FIELD_DAILY_RUNNING_DISTANCE) { return ["当天", "跑步", "距离"]; }
+        if (field == FIELD_YEARLY_RUNNING_DISTANCE) { return ["本年", "跑步", "距离"]; }
+        if (field == FIELD_DAILY_CYCLING_DISTANCE) { return ["当天", "骑行", "距离"]; }
+        if (field == FIELD_WEEKLY_CYCLING_DISTANCE) { return ["本周", "骑行", "距离"]; }
+        if (field == FIELD_YEARLY_CYCLING_DISTANCE) { return ["本年", "骑行", "距离"]; }
+        if (field == FIELD_METERS_CLIMBED) { return ["爬升", "高度"]; }
+        if (field == FIELD_VO2MAX_CYCLING) { return ["骑行", "最大", "摄氧量"]; }
+        if (field == FIELD_SEA_LEVEL_PRESSURE) { return ["海平面", "气压"]; }
+        if (field == FIELD_TOTAL_DISTANCE_7_DAYS) { return ["7日", "总", "距离"]; }
+        if (field == FIELD_SENSOR_TEMPERATURE) { return ["传感器", "温度"]; }
+        if (field == FIELD_HOURS_TO_NEXT_SUN) { return ["距", "下一个", "日出/", "日落"]; }
+        if (field == FIELD_ALT_TIMEZONE_1) { return ["备用", "时区1"]; }
+        if (field == FIELD_ALT_TIMEZONE_2) { return ["备用", "时区2"]; }
+        if (field == FIELD_UV_INDEX) { return ["紫外线", "指数"]; }
+        if (field == FIELD_NEXT_CALENDAR_EVENT) { return ["下一", "日历", "事件"]; }
+        if (field == FIELD_FEELS_LIKE) { return ["体感", "温度"]; }
+        return [fieldChineseLabel(field)];
+    }
+
+    // Taper toward the round edge: middle titles widen downward, side titles upward.
+    private function fieldLabelLines(dc, field as Lang.Number, font, center as Lang.Boolean) as Lang.Array {
+        var words = fieldChineseWords(field);
+        if (words.size() < 2) { return words; }
+        var upperLimit = x(center ? 0.16 : 0.30) - scalePx(4);
+        var lowerLimit = x(center ? 0.30 : 0.16) - scalePx(4);
+        var best = null;
+        var bestScore = 1000000;
+        var upper = "";
+        for (var split = 1; split < words.size(); split += 1) {
+            upper += words[split - 1];
+            var lower = "";
+            for (var i = split; i < words.size(); i += 1) { lower += words[i]; }
+            var upperWidth = dc.getTextWidthInPixels(upper, font);
+            var lowerWidth = dc.getTextWidthInPixels(lower, font);
+            if (upperWidth > upperLimit || lowerWidth > lowerLimit) { continue; }
+            var preferredWords = center ? split < words.size() - split : split > words.size() - split;
+            var preferredWidth = center ? lowerWidth >= upperWidth : upperWidth >= lowerWidth;
+            var difference = upperWidth - lowerWidth;
+            if (difference < 0) { difference = -difference; }
+            var score = (preferredWords ? 0 : 1000) + (preferredWidth ? 0 : 100) + difference;
+            if (score < bestScore) { bestScore = score; best = [upper, lower]; }
+        }
+        // The generated font audit guarantees at least one fitting word boundary.
+        return best == null ? words : best;
+    }
+
     private function drawCompactField(dc as Graphics.Dc, field as Lang.Number, cx as Lang.Number, cy as Lang.Number, fieldTextColor as Lang.Number, fieldValueColor as Lang.Number, battery as Lang.Number, context as Lang.Array) as Void {
         if (field == FIELD_HIDDEN) { return; }
         var value = fieldValue(field, battery, context[0], context[1], context[2], context[3], context[4]);
@@ -2872,9 +3010,32 @@ class CNWatchFaceView extends WatchUi.WatchFace {
         dc.drawText(cx, cy - scalePx(9), valueFont, value,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         dc.setColor(fieldTextColor, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy + scalePx(13), Graphics.FONT_XTINY,
-            fitContentValue(dc, fieldShortLabel(field), maxWidth, Graphics.FONT_XTINY),
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        var chinese = numberProperty("FieldLabelLanguage", 0) == 1;
+        var label = chinese ? fieldChineseLabel(field) : fieldShortLabel(field);
+        var labelFont = chinese ? fieldLabelChineseFont(dc) : Graphics.FONT_XTINY;
+        var labelY = cy + scalePx(13);
+        // All three titles share one baseline, independent of each value's fitted font.
+        var valueRowHeight = dc.getFontHeight(Graphics.FONT_SMALL);
+        var tinyHeight = dc.getFontHeight(Graphics.FONT_TINY);
+        var extraTinyHeight = dc.getFontHeight(Graphics.FONT_XTINY);
+        if (tinyHeight > valueRowHeight) { valueRowHeight = tinyHeight; }
+        if (extraTinyHeight > valueRowHeight) { valueRowHeight = extraTinyHeight; }
+        if (chinese) {
+            var lines = fieldLabelLines(dc, field, labelFont, cx == _cx);
+            var lineHeight = dc.getFontHeight(labelFont);
+            var firstY = cy - scalePx(9) + (valueRowHeight / 2).toNumber() +
+                scalePx(2) + (lineHeight / 2).toNumber();
+            for (var row = 0; row < lines.size(); row += 1) {
+                dc.drawText(cx, firstY + row * (lineHeight + scalePx(1)), labelFont, lines[row],
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            }
+        } else {
+            var minimumLabelY = cy - scalePx(9) +
+                ((valueRowHeight + dc.getFontHeight(labelFont)) / 2).toNumber() + scalePx(2);
+            if (labelY < minimumLabelY) { labelY = minimumLabelY; }
+            dc.drawText(cx, labelY, labelFont, label,
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
     }
 
     private function drawCompactTriple(dc as Graphics.Dc, first as Lang.Number, second as Lang.Number,
@@ -2900,8 +3061,7 @@ class CNWatchFaceView extends WatchUi.WatchFace {
             else if (displayHour > 12) { displayHour -= 12; }
         }
 
-        // AOD only consumes values captured while the watch face was active.
-        // Do this before any sensor, weather, or profile request.
+        // Keep AOD ahead of the normal sensor, weather and profile refreshes.
         var amoledLowPower = _lowPower;
         if (isAmoledLayout() && (System has :getDisplayMode)) {
             amoledLowPower = amoledLowPower || System.getDisplayMode() == System.DISPLAY_MODE_LOW_POWER;
@@ -2990,8 +3150,6 @@ class CNWatchFaceView extends WatchUi.WatchFace {
             refreshFieldData(fieldProperty("FieldRight", FIELD_CALORIES), _cachedActivity, date);
             refreshProgressData(numberProperty("ProgressLeftMetric", PROGRESS_STEPS), date);
             refreshProgressData(numberProperty("ProgressRightMetric", PROGRESS_CYCLE_DAY), date);
-            // Heart rate remains warm for the optional AOD heart-rate field.
-            _cachedHeartRate = currentHeartRate();
             refreshOptionalFieldCache();
         }
         if (!_weatherStorageLoaded) {

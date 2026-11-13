@@ -34,6 +34,7 @@
     <property id="TopCustomText" type="string"></property>
     <property id="TopWeatherPair" type="number">1</property>
     <property id="TemperatureUnit" type="number">0</property>
+    <property id="FieldLabelLanguage" type="number">0</property>
     <property id="FieldLeft" type="number">1</property>
     <property id="FieldCenter" type="number">2</property>
     <property id="FieldRight" type="number">3</property>
@@ -48,9 +49,5 @@
     <property id="CycleDayGoalKm" type="number">0</property>
     <property id="CycleWeekGoalKm" type="number">0</property>
     <property id="CycleMonthGoalKm" type="number">0</property>
-    <!-- AMOLED AOD uses cached data only; these control its two bottom fields. -->
-    <property id="AodLeftField" type="number">7</property>
-    <property id="AodRightField" type="number">5</property>
     <property id="UpdateFrequency" type="number">60</property>
-    <property id="LowPowerStyle" type="number">1</property>
 </properties>

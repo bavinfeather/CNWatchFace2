@@ -1,0 +1,76 @@
+{
+  "sourceSha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+  "glyphCount": 118,
+  "profiles": [
+    {
+      "width": 240,
+      "size": 9,
+      "lineHeight": 10,
+      "maxLines": 2,
+      "atlas": [
+        256,
+        58
+      ]
+    },
+    {
+      "width": 260,
+      "size": 10,
+      "lineHeight": 11,
+      "maxLines": 2,
+      "atlas": [
+        256,
+        72
+      ]
+    },
+    {
+      "width": 280,
+      "size": 10,
+      "lineHeight": 11,
+      "maxLines": 2,
+      "atlas": [
+        256,
+        72
+      ]
+    },
+    {
+      "width": 390,
+      "size": 15,
+      "lineHeight": 16,
+      "maxLines": 2,
+      "atlas": [
+        512,
+        67
+      ]
+    },
+    {
+      "width": 416,
+      "size": 16,
+      "lineHeight": 17,
+      "maxLines": 2,
+      "atlas": [
+        512,
+        68
+      ]
+    },
+    {
+      "width": 454,
+      "size": 17,
+      "lineHeight": 18,
+      "maxLines": 2,
+      "atlas": [
+        512,
+        91
+      ]
+    },
+    {
+      "width": 466,
+      "size": 17,
+      "lineHeight": 18,
+      "maxLines": 2,
+      "atlas": [
+        512,
+        91
+      ]
+    }
+  ]
+}

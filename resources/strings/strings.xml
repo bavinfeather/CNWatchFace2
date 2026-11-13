@@ -70,12 +70,7 @@
     <string id="SettingCycleDayGoalKm" scope="settings">Cycle day goal (km)</string>
     <string id="SettingCycleWeekGoalKm" scope="settings">Cycle week goal (km)</string>
     <string id="SettingCycleMonthGoalKm" scope="settings">Cycle month goal (km)</string>
-    <string id="SettingAodLeftField">AOD first field</string>
-    <string id="SettingAodRightField">AOD second field</string>
     <string id="SettingUpdateFrequency">Data update frequency</string>
-    <string id="SettingLowPowerStyle">AMOLED always-on display</string>
-    <string id="LowPowerSimple">Time and date only</string>
-    <string id="LowPowerFull">Compact watch face</string>
     <string id="EveryMinute">Every minute</string>
     <string id="Every30Seconds">Every 30 seconds</string>
     <string id="Every5Seconds">Every 5 seconds</string>
@@ -269,4 +264,7 @@
     <string id="ColorFollowProgress">Follow shared progress color</string>
     <string id="ColorFollowDate">Follow date color</string>
     <string id="ColorTrackBlueGray">Muted blue-gray</string>
+    <string id="SettingFieldLabelLanguage" scope="settings">Field label language</string>
+    <string id="FieldLabelEnglish" scope="settings">English abbreviations</string>
+    <string id="FieldLabelChinese" scope="settings">Chinese</string>
 </strings>

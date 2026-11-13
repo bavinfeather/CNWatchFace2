@@ -35,3 +35,14 @@ the MIT License. The full license is provided in
 [`licenses/MIT-Segment34mkII.txt`](licenses/MIT-Segment34mkII.txt).
 
 Copyright (c) 2025 Ludvig Wadenstein
+
+## Noto Sans SC field-label glyphs
+
+The bitmap fonts in `resources-field-label-*/fonts/` are generated glyph subsets
+of Noto Sans SC, licensed under the SIL Open Font License 1.1.
+Copyright 2014-2021 Adobe, with Reserved Font Name 'Source'.
+The generated bitmap font family is named "MAX2 Chinese Labels".
+The full license is included in `licenses/NotoSansSC-OFL.txt`.
+Source project: <https://github.com/notofonts/noto-cjk>.
+Generation and source-font SHA-256: `scripts/generate-field-label-fonts.py` and
+`scripts/field-label-fonts.json`.

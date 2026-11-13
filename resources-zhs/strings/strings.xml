@@ -70,12 +70,7 @@
     <string id="SettingCycleDayGoalKm" scope="settings">骑行日目标 (km)</string>
     <string id="SettingCycleWeekGoalKm" scope="settings">骑行周目标 (km)</string>
     <string id="SettingCycleMonthGoalKm" scope="settings">骑行月目标 (km)</string>
-    <string id="SettingAodLeftField">常亮模式第一个字段</string>
-    <string id="SettingAodRightField">常亮模式第二个字段</string>
     <string id="SettingUpdateFrequency">数据更新频率</string>
-    <string id="SettingLowPowerStyle">AMOLED 常亮显示</string>
-    <string id="LowPowerSimple">仅显示时间和日期</string>
-    <string id="LowPowerFull">精简表盘</string>
     <string id="EveryMinute">每分钟</string>
     <string id="Every30Seconds">每30秒</string>
     <string id="Every5Seconds">每5秒</string>
@@ -269,4 +264,7 @@
     <string id="ColorFollowProgress">跟随统一进度颜色</string>
     <string id="ColorFollowDate">跟随日期颜色</string>
     <string id="ColorTrackBlueGray">柔和灰蓝</string>
+    <string id="SettingFieldLabelLanguage" scope="settings">字段标题语言</string>
+    <string id="FieldLabelEnglish" scope="settings">英文缩写</string>
+    <string id="FieldLabelChinese" scope="settings">中文</string>
 </strings>
